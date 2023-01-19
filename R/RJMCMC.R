@@ -74,8 +74,9 @@ rjmcmcR <- function(data, inits=NULL, tune=NULL, prior, control = list( n.iters=
     D <- eudistC(S, X)
     # calculate initial detection matrix lambda_ij
     lam <-  K*lamC(D, sigma) 
+    lam.j <- colsumC(lam)
     # calculate initial log likelihood
-    llcur <- sum(dpoisC(n, lam0*colsumC(lam), TRUE))
+    llcur <- sum(dpoisC(n, lam0*lam.j, TRUE))
     
     # matrix to hold samples
     out <- matrix( NA, nrow = niters, ncol = 3 )
@@ -139,8 +140,6 @@ rjmcmcR <- function(data, inits=NULL, tune=NULL, prior, control = list( n.iters=
       }
       
       Sups <- 0
-      # get the Lambda_j for the trick 
-      lam.j <- colsumC(lam)
       # generate proposed activity centres from bivariate normal distrbution
       S.cand <- cbind(rnorm(N, S[,1], tune.S), rnorm(N, S[,2], tune.S))
       # check if the proposed activity centres are within the state space
@@ -152,7 +151,7 @@ rjmcmcR <- function(data, inits=NULL, tune=NULL, prior, control = list( n.iters=
       lam.cand <- K * lamC(D.cand, sigma) 
       for(i in which(inbox==1)) {
         # implemenet the efficient trick and the rest is the same as above
-        lam.j.cand <- lam.j - lam[i,] + lam.cand[i,] + machine.precision
+        lam.j.cand <- lam.j - lam[i,] + lam.cand[i,] + tol
         llcand <- sum(dpoisC(n, lam0 * lam.j.cand, TRUE) ) 
         if(runif(1)< exp(llcand - llcur)) {
           llcur <- llcand
@@ -181,14 +180,15 @@ rjmcmcR <- function(data, inits=NULL, tune=NULL, prior, control = list( n.iters=
             # update all matrix, euclidean matrix, lambda_ij for new activity centres
             D.cand <- eudistC(S.cand, X)
             lam.cand <- K * lamC(D.cand, sigma)
-            # combine the current lambda_ij and the new one
-            lam.cand <- rbind(lam, lam.cand)
+            # combine the current lambda_j and the new one
+            lam.j.cand <- lam.j + colsumC(lam.cand)
             # compute the likelihood for the new values
-            llcand <- sum(dpoisC(n, lam0 * colsumC(lam.cand), TRUE))
+            llcand <- sum(dpoisC(n, lam0 * lam.j.cand, TRUE))
             
-            if(runif(1) < exp(llcand  - llcur  + llN.cand - llN)){
+            if(runif(1) < exp(llcand  - llcur)){
               llcur <- llcand
-              lam <- lam.cand
+              lam <- rbind(lam, lam.cand)
+              lam.j <- lam.j.cand
               N <- N.cand
               S <- rbind(S,S.cand)
               D <- rbind(D,D.cand)
@@ -200,11 +200,13 @@ rjmcmcR <- function(data, inits=NULL, tune=NULL, prior, control = list( n.iters=
             id <- omit.s(N, N.cand)
             # substract the selected individuals
             lam.cand <- matrix(lam[-id , ], nrow = N.cand)
-            llcand <- sum(dpoisC(n, lam0 * colsumC(lam.cand), TRUE)) 
+            lam.j.cand <- colsumC(lam.cand)
+            llcand <- sum(dpoisC(n, lam0 * lam.j.cand, TRUE)) 
             
-            if(runif(1) < exp(llcand  - llcur  + llN.cand - llN)){
+            if(runif(1) < exp(llcand  - llcur)){
               llcur <- llcand
               lam <- lam.cand
+              lam.j <- lam.j.cand
               N <- N.cand
               D <- matrix(D[ -id ,], nrow = N.cand)
               S <- matrix(S[ -id ,], nrow = N.cand)

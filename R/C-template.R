@@ -78,3 +78,9 @@ NumericVector dpoisC(NumericVector y, NumericVector lambda, int give_log) {
   else return exp(logans);
 }"
 cppFunction(src)
+
+# This function is created to obtain the mode 
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}

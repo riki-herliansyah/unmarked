@@ -88,8 +88,7 @@ spaR <- function(data, inits=NULL, tune=NULL, prior, control = list( n.iters=500
         lam.j.cand <- colsumC(lam.cand*w)
         llcand <- sum(dpoisC(n, lam0*lam.j.cand, TRUE)) 
         
-        if(runif(1) < exp(llcand - llcur + ldsigma.cand - ldsigma +
-                          log.sigma.cand - log(sigma))){
+        if(runif(1) < exp(llcand - llcur + ldsigma.cand - ldsigma)){
           llcur <- llcand
           lam <- lam.cand
           lam.j <- lam.j.cand
@@ -186,11 +185,11 @@ spaR <- function(data, inits=NULL, tune=NULL, prior, control = list( n.iters=500
         }
       }
       
-      # setTxtProgressBar(pb,iter)    
+      setTxtProgressBar(pb,iter)    
       out[iter,] <- c(sigma, lam0, sum(w), psi)
       accept.rate[iter,] <- c(acc.sigma/iter, acc.lam0/iter)
     }
-    # close(pb)
+    close(pb)
     out.mcmc <- mcmc(out[-(1:n.burn),])
     result[[j]] <- out.mcmc
   }
