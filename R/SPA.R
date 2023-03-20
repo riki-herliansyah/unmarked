@@ -77,25 +77,7 @@ spaR <- function(data, inits=NULL, tune=NULL, prior, control = list( n.iters=500
           cat("Acc. W =", Wups/M,"\n")
         }
       }
-      # update sigma
-      sigma.cand <- sigma + tune.sigma*rnorm(1)
       
-      if(sigma.cand > 0){
-        ldsigma <- dgamma(sigma, prior$sigma[1], prior$sigma[2], log = TRUE) * I1
-        ldsigma.cand <- dgamma(sigma.cand, prior$sigma[1], prior$sigma[2], log = TRUE) * I1
-        
-        lam.cand <- K*lamC(D, sigma.cand)
-        lam.j.cand <- colsumC(lam.cand*w)
-        llcand <- sum(dpoisC(n, lam0*lam.j.cand, TRUE)) 
-        
-        if(runif(1) < exp(llcand - llcur + ldsigma.cand - ldsigma)){
-          llcur <- llcand
-          lam <- lam.cand
-          lam.j <- lam.j.cand
-          sigma <- sigma.cand
-          acc.sigma <- acc.sigma + 1
-        }
-      }
       # update sigma
       sigma.cand <- sigma + tune.sigma*rnorm(1)
       
