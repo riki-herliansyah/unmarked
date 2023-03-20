@@ -2,7 +2,7 @@ library(coda)
 library(Rcpp)
 source('R/C-template.R')
 source('R/RJMCMC.R')
-source('SPA.R')
+source('R/SPA.R')
 # Parula data modelling
 # input the data provided in Candler and Royle (2013)
 nopaDat <-
