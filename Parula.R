@@ -90,7 +90,7 @@ tune = list( sigma = 0.1,
 set.seed(171)
 tstart = proc.time()
 spa.parula <- spaR(data = data, tune = tune, inits = inits, prior = prior, 
-                    control = list(n.iters = 300000, n.chain = 3, n.burn = 10000, 
+                    control = list(n.iters = 30000, n.chain = 3, n.burn = 10000, 
                                    monitor = TRUE, tol = 1e-15))
 time.spa2 <- proc.time() - tstart
 

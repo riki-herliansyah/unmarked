@@ -380,7 +380,7 @@ rjmcmcIR <- function(data, inits=NULL, tune=NULL, prior, control = list( n.iters
       # update S
       Sups <- 0
       # generate proposed activity centres from bivariate normal distrbution
-      S.cand <- cbind(rnorm(M, S[,1], tune.S), rnorm(M, S[,2], tune.S))
+      S.cand <- cbind(rnorm(N, S[,1], tune.S), rnorm(N, S[,2], tune.S))
       # check if the proposed activity centres are within the state space
       inbox <- inside.owin(S.cand[,1], S.cand[,2], wind)
       # compute the proposed euclidean distance
@@ -603,7 +603,7 @@ rjmcmcIRH <- function(data, inits=NULL, tune=NULL, prior, control = list(n.iters
       # update S
       Sups <- 0
       # generate proposed activity centres from bivariate normal distrbution
-      S.cand <- cbind(rnorm(M, S[,1], tune.S), rnorm(M, S[,2], tune.S))
+      S.cand <- cbind(rnorm(N, S[,1], tune.S), rnorm(N, S[,2], tune.S))
       # check if the proposed activity centres are within the state space
       inbox <- inside.owin(S.cand[,1], S.cand[,2], wind)
       # compute the proposed euclidean distance

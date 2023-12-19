@@ -7,18 +7,18 @@ library(spatstat)
 
 source('R/C-template.R')
 source('R/RJMCMC.R')
-source('SPA.R')
+source('R/SPA.R')
 
 # import the data set (can requested to the author)
-muntjak <- read.delim("muntjak.txt")
-nj <- as.matrix(muntjak)
+muntjak <- read_excel("muntjak.xlsx")
+nj <- as.matrix(muntjak[,4:5])
 
 # import the study area
-patch <- read.csv("studyarea2.csv")
+patch <- read.csv("studyarea.csv")
 # set as a window object
 win <- as.owin(patch)
 # import the trap locations
-traps <- as.matrix(read.csv("traps.csv"))
+traps <- as.matrix(muntjak[,2:3])
 xlim <- c(-5, 265)
 ylim <- c(-5, 245)
 
@@ -31,9 +31,8 @@ tune.par = list( sigma = 0.05,
                  lam0 = 0.12,
                  S = 65,
                  N = 120)
-# set the data set; the first two column for wet season and the last two are for dry season
-# assuming K = 9
-data <- list( n = rowSums(nj[, 3:4]),
+# set the data set assuming K = 9
+dataIn <- list(n = nj[,2],
               K = 9,
               X = traps,
               xlim = xlim,
@@ -41,13 +40,13 @@ data <- list( n = rowSums(nj[, 3:4]),
               wind = win)
 # assume a uniform prior on sigma, a normal prior on log(lambda_0)
 # and NB ~ (10, 0.0032) for N
-prior <- list( sigma = NULL,
-               lam0 = c(0, 10),
-               N = c(10, 0.0032))
+prior <- list(sigma = NULL,
+              lam0 = c(0, 10),
+              N = c(10, 0.0032))
 
 tstart = proc.time()
-model <- rjmcmcIR(data = data, tune = tune.par, prior = prior, control = list(n.iters=500000, 
-                  n.chain=1, n.burn=10000, n.update=15, monitor = FALSE, tol=1e-10), 
+model <- rjmcmcIR(data = dataIn, tune = tune.par, prior = prior, control = list(n.iters=1000, 
+                  n.chain=1, n.burn=1000, n.update=15, monitor = TRUE, tol=1e-10), 
                   inits = inits)
 time <- proc.time() - tstart
 
